@@ -10,7 +10,12 @@ public class ShakespeareAndScrabbleTests {
 
 	@Test
 	public void successfulRun() throws SQLException {
-		assertEquals("Successful", s1.start());
+		assertEquals("Successful", s1.start("ospd.txt", "words.shakespeare.txt"));
+	}
+
+	@Test
+	public void failedRun() throws SQLException {
+		assertEquals("Unable to read file", s1.start("ospd.txt", "noneexistantfile.txt"));
 	}
 
 }

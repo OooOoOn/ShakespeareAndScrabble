@@ -12,10 +12,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Scrabble {
-	
-	public String start() {
 
-        List<Word> listOfShakespeareWords = new ArrayList<>();
+    List<Word> listOfShakespeareWords = new ArrayList<>();
+    Stream<String> streamOfDictionary;
+    List<String> listOfDictionary;
+    Stream<String> streamOfShakespeareWords;
+    HashMap<Character, Integer> hm = new HashMap<>();
+
+	public String start(String dictionaryFilePath, String shakespeareFilePath) {
 
         int[] letterScores = {
              // a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p,  q, r, s, t, u, v, w, x, y, z?
@@ -26,53 +30,37 @@ public class Scrabble {
                 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
         };
 
-        
         //Hashmap to store value of each letter.
-        HashMap<Character, Integer> hm = new HashMap<>();
         for (int i = 0; i < alfabet.length; i++) {
             hm.put(alfabet[i], letterScores[i]);
         }
-        System.out.println(hm);
 
         //reading files to Streams.
-        String dictionary = "ospd.txt";
-        String shakespeareFilePath = "words.shakespeare2.txt";
         try {
-            Stream<String> streamOfDictionary = Files.lines(Paths.get(dictionary));
-            List<String> listOfDictionary = streamOfDictionary.collect(Collectors.toList());
-            Stream<String> streamOfShakespeareWords = Files.lines(Paths.get(shakespeareFilePath));
-            System.out.println("Files successfully read");
-            //Adding Shakespeare words to Object list to calculate validity and points per word.
-            streamOfShakespeareWords.forEach(word -> listOfShakespeareWords.add(new Word(calculatePoints(word, hm), isValid(word, listOfDictionary), word)));
-            streamOfDictionary.close();
-            streamOfShakespeareWords.close();   
+            streamOfDictionary = Files.lines(Paths.get(dictionaryFilePath));
+            listOfDictionary = streamOfDictionary.collect(Collectors.toList());
+            streamOfShakespeareWords = Files.lines(Paths.get(shakespeareFilePath));
+            System.out.println("Files successfully read\n");
+        }
+            catch (IOException e) {
+                e.printStackTrace();
+                return "Unable to read file";
+            }
 
-        } catch (IOException e) {
+        try {
+            //Adding Shakespeare words to Object list to calculate validity and points per word.
+            streamOfShakespeareWords.forEach(word -> listOfShakespeareWords.add(new Word(calculatePoints(word), isValid(word, listOfDictionary), word)));
+            streamOfDictionary.close();
+            streamOfShakespeareWords.close();
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        
-        //Final print of words for highscore
-        
-        System.out.println("Highscore - allowed words:");
-        List<Word> result = listOfShakespeareWords.stream()
-        						.filter(w -> !false == (w.getValid()))
-        						.sorted(Comparator.comparingInt(Word::getPoints).reversed())
-        						.collect(Collectors.toList());
-        
-        result.forEach(System.out::println);
-        
-        System.out.println("\nHighscore - all words:");
-        result = listOfShakespeareWords.stream()
-        						.sorted(Comparator.comparingInt(Word::getPoints).reversed())
-        						.collect(Collectors.toList());
-        
-        result.forEach(System.out::println);
-        return "Successful";
-    }			
 
+        return printResult();
 
-    
+    }
 
+    // Checks whether word exists in allowed dictionary.
     private boolean isValid(String word, List<String> streamOfDictionary) {
 
         boolean match = streamOfDictionary.stream().anyMatch(w -> streamOfDictionary.contains(word));
@@ -80,8 +68,10 @@ public class Scrabble {
         return match;
     }
 
-    private int calculatePoints(String word, HashMap<Character, Integer> hm) {
+    //Calculate points of all words, allowed or not.
+    private int calculatePoints(String word) {
 
+	    //Every word has its own set of letters.
         int[] scrabbleLetterDistribution = {
              // a, b, c, d,  e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z
                 9, 2, 2, 1, 12, 2, 3, 2, 9, 1, 1, 4, 2, 6, 8, 2, 1, 6, 4, 6, 4, 2, 2, 1, 2, 1
@@ -120,6 +110,27 @@ public class Scrabble {
             }
         }
         return points;
+    }
+
+    //Insert witty comment here.
+    private String printResult() {
+
+        //Final print of words for highscore
+        System.out.println("Highscore - allowed words:");
+        List<Word> result = listOfShakespeareWords.stream()
+                .filter(w -> (w.getValid()))
+                .sorted(Comparator.comparingInt(Word::getPoints).reversed())
+                .collect(Collectors.toList());
+
+        result.forEach(System.out::println);
+
+        System.out.println("\nHighscore - all words:");
+        result = listOfShakespeareWords.stream()
+                .sorted(Comparator.comparingInt(Word::getPoints).reversed())
+                .collect(Collectors.toList());
+
+        result.forEach(System.out::println);
+        return "Successful";
     }
 
 }
