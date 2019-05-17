@@ -90,17 +90,15 @@ public class Scrabble {
         	                
                 //Update available letters
                 for (Entry<Character, Integer> entry : hm.entrySet()) {
-                	//letterPosition++;
                 	if(entry.getKey().equals(currentLetter)) {
-                	//letterPosition--;
         		    System.out.println("Letter '" + entry.getKey() + "' is worth " + entry.getValue() + " points");
                 	//Check if there are letters left for current letter.
                     if (scrabbleLetterDistribution[letterPosition] != 0) {
-                    System.out.println("Available letters: " + (scrabbleLetterDistribution[letterPosition]));
-                	scrabbleLetterDistribution[letterPosition] -= 1;
-                	//Update total points for current word
-                    points += (int) hm.get(word.charAt(i));
-                	break;
+                        System.out.println("Available letters: " + (scrabbleLetterDistribution[letterPosition]));
+                        scrabbleLetterDistribution[letterPosition] -= 1;
+                        //Update total points for current word
+                        points += (int) hm.get(word.charAt(i));
+                        break;
                 	}
                     else {
                     	System.out.println("Not enough of letter '" + currentLetter + "'.");
