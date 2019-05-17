@@ -47,23 +47,25 @@ public class Scrabble {
                 return "Unable to read file";
             }
 
+        //Adding Shakespeare words to Object list to calculate validity and points per word.
         try {
-            //Adding Shakespeare words to Object list to calculate validity and points per word.
             streamOfShakespeareWords.forEach(word -> listOfShakespeareWords.add(new Word(calculatePoints(word), isValid(word, listOfDictionary), word)));
-            streamOfDictionary.close();
-            streamOfShakespeareWords.close();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
-
+        finally {
+            streamOfDictionary.close();
+            streamOfShakespeareWords.close();
+        }
         return printResult();
 
     }
 
     // Checks whether word exists in allowed dictionary.
-    private boolean isValid(String word, List<String> streamOfDictionary) {
+    private boolean isValid(String word, List<String> listOfDictionary) {
 
-        boolean match = streamOfDictionary.stream().anyMatch(w -> streamOfDictionary.contains(word));
+        boolean match = listOfDictionary.stream().anyMatch(w -> listOfDictionary.contains(word));
         System.out.println(match + "\n");
         return match;
     }
@@ -88,14 +90,12 @@ public class Scrabble {
         	                
                 //Update available letters
                 for (Entry<Character, Integer> entry : hm.entrySet()) {
-                	
-                	letterPosition++;
+                	//letterPosition++;
                 	if(entry.getKey().equals(currentLetter)) {
-                	letterPosition--;
+                	//letterPosition--;
         		    System.out.println("Letter '" + entry.getKey() + "' is worth " + entry.getValue() + " points");
                 	//Check if there are letters left for current letter.
                     if (scrabbleLetterDistribution[letterPosition] != 0) {
-                    System.out.println("Letter position in alfabet: " + (letterPosition + 1));
                     System.out.println("Available letters: " + (scrabbleLetterDistribution[letterPosition]));
                 	scrabbleLetterDistribution[letterPosition] -= 1;
                 	//Update total points for current word
@@ -103,10 +103,10 @@ public class Scrabble {
                 	break;
                 	}
                     else {
-                    	System.out.println("Available letters: " + (scrabbleLetterDistribution[letterPosition]));
                     	System.out.println("Not enough of letter '" + currentLetter + "'.");
                     }
         		}
+                    letterPosition++;
             }
         }
         return points;
@@ -115,7 +115,6 @@ public class Scrabble {
     //Insert witty comment here.
     private String printResult() {
 
-        //Final print of words for highscore
         System.out.println("Highscore - allowed words:");
         List<Word> result = listOfShakespeareWords.stream()
                 .filter(w -> (w.getValid()))
